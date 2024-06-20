@@ -12,11 +12,6 @@ def get_logger():
     return logger
 
 
-def get_api_key():
-    API_KEY = os.environ.get("OPENAI_API_KEY")
-    if API_KEY is None:
-        raise ValueError("You need to specify OPENAI_API_KEY environment variable!")
-    return API_KEY
 
 def get_changed_files():
     CHANGED_FILES = os.environ.get("CHANGED_FILES")

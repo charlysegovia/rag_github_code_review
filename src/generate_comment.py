@@ -1,15 +1,18 @@
 import os
 import sys
 import requests
-from util import get_logger, get_api_key, get_git_creds, get_changed_files
+from util import get_logger, get_changed_files
 from openai import OpenAI
 from github import Github
 
+GIT_TOKEN = os.environ.get('GIT_TOKEN')
+GIT_REPO = os.environ.get('GITHUB_REPOSITORY')
+OPENAI_API_KEY = os.environ.get("OPENAI_API_KEY")
+if OPENAI_API_KEY is None:
+    raise ValueError("You need to specify OPENAI_API_KEY environment variable!")
+
 logger = get_logger()
-
-client = OpenAI(api_key=get_api_key())
-git_token, repo, pr_number = get_git_creds()
-
+client = OpenAI(api_key=OPENAI_API_KEY)
 
 def get_pr_files(pr_number):
     g = Github(os.getenv('GITHUB_TOKEN'))
@@ -65,8 +68,8 @@ def main(files_to_process: list):
     if file_path in files_to_process:
       prompt = f"Make sure this file {file_path} follows all the right naming and python conventions. Make any call outs you see!"
       comment = get_feedback(filename, system_prompt, prompt)
-      if git_token and repo and pr_number:
-          post_github_comment(git_token, repo, pr_number, comment, filename)
+      if GIT_TOKEN and GIT_REPO and pr_number:
+          post_github_comment(GIT_TOKEN, GIT_REPO, pr_number, comment, filename)
 
 if __name__ == "__main__":
   pr_number = int(sys.argv[1])
