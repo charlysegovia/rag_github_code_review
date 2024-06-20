@@ -72,13 +72,17 @@ def main(files_to_process: list):
 
   for filename in files_to_process:
     logger.info("processing:" +filename)
-    with open(filename, 'r') as file:
-        content = file.read()
-        print(content)
-        prompt = f"Make sure this file {filename} with this content: {content} follows all the right naming and python conventions. Make any call outs you see!"
-        comment = get_feedback(filename, system_prompt, prompt)
-        if GIT_TOKEN and GIT_REPO and pr_number:
-            post_github_comment(GIT_TOKEN, GIT_REPO, pr_number, comment, filename)
+    try:
+        with open(filename, 'r') as file:
+            content = file.read()
+            print(content)
+            prompt = f"Make sure this file {filename} with this content: {content} follows all the right naming and python conventions. Make any call outs you see!"
+            comment = get_feedback(filename, system_prompt, prompt)
+            if GIT_TOKEN and GIT_REPO and pr_number:
+                post_github_comment(GIT_TOKEN, GIT_REPO, pr_number, comment, filename)
+    except Exception as e:
+        print(e)
+
 
 if __name__ == "__main__":
   pr_number = int(sys.argv[1])
