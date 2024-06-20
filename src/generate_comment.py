@@ -2,7 +2,6 @@ import os
 import sys
 import requests
 import logging
-from util import get_logger
 from openai import OpenAI
 from github import Github
 
@@ -19,7 +18,6 @@ OPENAI_API_KEY = os.environ.get("OPENAI_API_KEY")
 if OPENAI_API_KEY is None:
     raise ValueError("You need to specify OPENAI_API_KEY environment variable!")
 
-logger = get_logger()
 client = OpenAI(api_key=OPENAI_API_KEY)
 
 def get_pr_files(pr_number):
