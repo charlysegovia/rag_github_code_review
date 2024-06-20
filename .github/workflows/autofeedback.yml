@@ -18,14 +18,13 @@ jobs:
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
-        pip install openai
-        pip install PyGithub
+        pip install -r requirements.txt
 
     - name: Get PR changes
       id: pr_changes
       run: |
-        CHANGED_FILES=$(jq -r '.pull_request.head.sha' "$GITHUB_EVENT_PATH")
-        echo "::set-output name=changed_files::$CHANGED_FILES"
+        COMMIT_HASH=$(jq -r '.pull_request.head.sha' "$GITHUB_EVENT_PATH")
+        echo "::set-output name=commit_hash::$COMMIT_HASH"
 
     - name: Run Python script
       env:
@@ -33,4 +32,4 @@ jobs:
         GITHUB_REPOSITORY: ${{ github.repository }}
         OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
       run: |
-        python src/generate_comment.py ${{ github.event.pull_request.number }} ${{ steps.pr_changes.outputs.changed_files }}
+        python src/generate_comment.py ${{ github.event.pull_request.number }} ${{ steps.pr_changes.outputs.commit_hash }}
