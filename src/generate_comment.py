@@ -1,9 +1,17 @@
 import os
 import sys
 import requests
-from util import get_logger, get_changed_files
+import logging
+from util import get_logger
 from openai import OpenAI
 from github import Github
+
+logger = logging.getLogger()
+formatter = logging.Formatter("%(message)s")
+stream_handler = logging.StreamHandler(sys.stdout)
+stream_handler.setFormatter(formatter)
+logger.addHandler(stream_handler)
+logger.setLevel(logging.INFO)
 
 GIT_TOKEN = os.environ.get('GIT_TOKEN')
 GIT_REPO = os.environ.get('GITHUB_REPOSITORY')
@@ -74,5 +82,5 @@ def main(files_to_process: list):
 if __name__ == "__main__":
   pr_number = int(sys.argv[1])
   changes = get_pr_files(pr_number)
-  files_to_process = get_changed_files()
+  files_to_process = sys.argv[2]
   main(files_to_process)
