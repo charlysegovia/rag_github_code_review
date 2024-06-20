@@ -1,11 +1,6 @@
 import sys
 import logging
 import os
-import re
-from dotenv import load_dotenv
-
-load_dotenv()
-
 
 def get_logger():
     logger = logging.getLogger()
@@ -23,20 +18,6 @@ def get_api_key():
         raise ValueError("You need to specify OPENAI_API_KEY environment variable!")
     return API_KEY
 
-
-def check_aws_creds():
-    AWS_ACCESS_KEY_ID = os.environ.get("AWS_ACCESS_KEY_ID")
-    AWS_SECRET_ACCESS_KEY = os.environ.get("AWS_SECRET_ACCESS_KEY")
-    AWS_S3_BUCKET = os.environ.get('AWS_S3_BUCKET')
-    if AWS_ACCESS_KEY_ID is None:
-        raise ValueError("You need to specify AWS_ACCESS_KEY_ID environment variable!")
-    if AWS_SECRET_ACCESS_KEY is None:
-        raise ValueError("You need to specify AWS_SECRET_ACCESS_KEY environment variable!")
-    if AWS_S3_BUCKET is None:
-        raise ValueError("You need to specify AWS_S3_BUCKET environment variable!")
-    return AWS_S3_BUCKET
-
-
 def get_git_creds():
     GIT_TOKEN = os.getenv("GIT_TOKEN")
     GITHUB_REPO = os.getenv("GITHUB_REPO")
@@ -48,12 +29,6 @@ def get_git_creds():
     if PR_NUMBER is None:
         raise ValueError("You need to specify PR_NUMBER environment variable!")
     return GIT_TOKEN, GITHUB_REPO, PR_NUMBER
-
-def get_assignment():
-    ASSIGNMENT = os.environ.get("ASSIGNMENT")
-    if ASSIGNMENT is None:
-        raise ValueError("You need to specify ASSIGNMENT environment variable!")
-    return ASSIGNMENT
 
 def get_changed_files():
     CHANGED_FILES = os.environ.get("CHANGED_FILES")
@@ -67,19 +42,3 @@ def get_changed_files():
             raise ValueError(f"`{file}` not found. Please make sure all files exist.")
     return changed_files_list
 
-
-## Get the student's answers from the `submission` folder
-def get_submissions(submission_dir: str) -> dict:
-    submissions = {}
-    submission_files = [f for f in os.listdir(submission_dir)]
-    for filename in submission_files:
-        file_path = os.path.join(submission_dir, filename)
-        with open(file_path, "r") as file:
-            file_content = file.read()
-        if re.search(r'\S', file_content):
-            submissions[filename] = file_content
-    if not submissions:
-        logging.warning('no submissions found')
-        return None
-    sorted_submissions = dict(sorted(submissions.items()))
-    return sorted_submissions
