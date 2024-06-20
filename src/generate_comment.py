@@ -1,7 +1,6 @@
 import os
 import sys
 import requests
-import boto3
 from util import get_logger, get_api_key, get_git_creds, get_changed_files
 from openai import OpenAI
 from github import Github
@@ -19,14 +18,6 @@ def get_pr_files(pr_number):
     files = pr.get_files()
     changes = [f.filename for f in files]
     return changes
-
-
-def download_from_s3(s3_bucket: str, s3_path: str, local_path: str):
-  s3 = boto3.client('s3')
-  try:
-    s3.download_file(s3_bucket, s3_path, local_path)
-  except Exception as e:
-    raise Exception(f"Failed to download from S3: {e}")
 
 
 def get_feedback(filename: str, system_prompt: str, user_prompt: str) -> str:
