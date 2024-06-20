@@ -1,32 +1,32 @@
 import os
 import sys
 import requests
-import boto3
-from util import get_logger, get_api_key, get_git_creds, get_changed_files
+import logging
 from openai import OpenAI
 from github import Github
 
-logger = get_logger()
+logger = logging.getLogger()
+formatter = logging.Formatter("%(message)s")
+stream_handler = logging.StreamHandler(sys.stdout)
+stream_handler.setFormatter(formatter)
+logger.addHandler(stream_handler)
+logger.setLevel(logging.INFO)
 
-client = OpenAI(api_key=get_api_key())
-git_token, repo, pr_number = get_git_creds()
+GIT_TOKEN = os.environ.get('GIT_TOKEN')
+GIT_REPO = os.environ.get('GITHUB_REPOSITORY')
+OPENAI_API_KEY = os.environ.get("OPENAI_API_KEY")
+if OPENAI_API_KEY is None:
+    raise ValueError("You need to specify OPENAI_API_KEY environment variable!")
 
+client = OpenAI(api_key=OPENAI_API_KEY)
 
 def get_pr_files(pr_number):
-    g = Github(os.getenv('GITHUB_TOKEN'))
+    g = Github(os.getenv('GIT_TOKEN'))
     repo = g.get_repo(os.getenv('GITHUB_REPOSITORY'))
     pr = repo.get_pull(pr_number)
     files = pr.get_files()
     changes = [f.filename for f in files]
     return changes
-
-
-def download_from_s3(s3_bucket: str, s3_path: str, local_path: str):
-  s3 = boto3.client('s3')
-  try:
-    s3.download_file(s3_bucket, s3_path, local_path)
-  except Exception as e:
-    raise Exception(f"Failed to download from S3: {e}")
 
 
 def get_feedback(filename: str, system_prompt: str, user_prompt: str) -> str:
@@ -69,16 +69,22 @@ def main(files_to_process: list):
     You are a senior software engineer looking to give feedback on every PR you see in this repo
   
   """
+
   for filename in files_to_process:
-    file_path = os.path.join('src', filename)
-    if file_path in files_to_process:
-      prompt = f"Make sure this file {file_path} follows all the right naming and python conventions. Make any call outs you see!"
-      comment = get_feedback(filename, system_prompt, prompt)
-      if git_token and repo and pr_number:
-          post_github_comment(git_token, repo, pr_number, comment, filename)
+    logger.info("processing:" +filename)
+    try:
+        with open(filename, 'r') as file:
+            content = file.read()
+            print(content)
+            prompt = f"Make sure this file {filename} with this content: {content} follows all the right naming and python conventions. Make any call outs you see!"
+            comment = get_feedback(filename, system_prompt, prompt)
+            if GIT_TOKEN and GIT_REPO and pr_number:
+                post_github_comment(GIT_TOKEN, GIT_REPO, pr_number, comment, filename)
+    except Exception as e:
+        print(e)
+
 
 if __name__ == "__main__":
   pr_number = int(sys.argv[1])
   changes = get_pr_files(pr_number)
-  files_to_process = get_changed_files()
-  main(files_to_process)
+  main(changes)
