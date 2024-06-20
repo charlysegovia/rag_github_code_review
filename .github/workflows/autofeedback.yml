@@ -30,6 +30,7 @@ jobs:
     - name: Run Python script
       env:
         GIT_TOKEN: ${{ secrets.GIT_TOKEN }}
+        GITHUB_REPOSITORY: DataExpert-io/auto-feedback-example
         OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
       run: |
         python src/generate_comment.py ${{ github.event.pull_request.number }} ${{ steps.pr_changes.outputs.changed_files }}

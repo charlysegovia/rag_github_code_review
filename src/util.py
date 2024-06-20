@@ -18,18 +18,6 @@ def get_api_key():
         raise ValueError("You need to specify OPENAI_API_KEY environment variable!")
     return API_KEY
 
-def get_git_creds():
-    GIT_TOKEN = os.getenv("GIT_TOKEN")
-    GITHUB_REPO = os.getenv("GITHUB_REPO")
-    PR_NUMBER = os.getenv("PR_NUMBER")
-    if GIT_TOKEN is None:
-        raise ValueError("You need to specify GIT_TOKEN environment variable!")
-    if GITHUB_REPO is None:
-        raise ValueError("You need to specify GITHUB_REPO environment variable!")
-    if PR_NUMBER is None:
-        raise ValueError("You need to specify PR_NUMBER environment variable!")
-    return GIT_TOKEN, GITHUB_REPO, PR_NUMBER
-
 def get_changed_files():
     CHANGED_FILES = os.environ.get("CHANGED_FILES")
     if CHANGED_FILES is None:
