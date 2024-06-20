@@ -1,4 +1,4 @@
-name: PR Comment with GPT-4
+name: Senior Engineer GPT
 
 on:
   pull_request:
@@ -20,16 +20,10 @@ jobs:
         python -m pip install --upgrade pip
         pip install -r requirements.txt
 
-    - name: Get PR changes
-      id: pr_changes
-      run: |
-        COMMIT_HASH=$(jq -r '.pull_request.head.sha' "$GITHUB_EVENT_PATH")
-        echo "::set-output name=commit_hash::$COMMIT_HASH"
-
     - name: Run Python script
       env:
         GIT_TOKEN: ${{ secrets.GIT_TOKEN }}
         GITHUB_REPOSITORY: ${{ github.repository }}
         OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
       run: |
-        python src/generate_comment.py ${{ github.event.pull_request.number }} ${{ steps.pr_changes.outputs.commit_hash }}
+        python src/generate_comment.py ${{ github.event.pull_request.number }} ${{ github.event.pull_request.head.sha }}
