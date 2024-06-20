@@ -15,7 +15,7 @@ logger = get_logger()
 client = OpenAI(api_key=OPENAI_API_KEY)
 
 def get_pr_files(pr_number):
-    g = Github(os.getenv('GITHUB_TOKEN'))
+    g = Github(os.getenv('GIT_TOKEN'))
     repo = g.get_repo(os.getenv('GITHUB_REPOSITORY'))
     pr = repo.get_pull(pr_number)
     files = pr.get_files()
