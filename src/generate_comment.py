@@ -69,7 +69,9 @@ def main(files_to_process: list):
     You are a senior software engineer looking to give feedback on every PR you see in this repo
   
   """
+
   for filename in files_to_process:
+    logger.info("processing:" +filename)
     file_path = os.path.join('src', filename)
     if file_path in files_to_process:
       prompt = f"Make sure this file {file_path} follows all the right naming and python conventions. Make any call outs you see!"
