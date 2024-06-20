@@ -80,5 +80,4 @@ def main(files_to_process: list):
 if __name__ == "__main__":
   pr_number = int(sys.argv[1])
   changes = get_pr_files(pr_number)
-  files_to_process = sys.argv[2]
-  main(files_to_process)
+  main(changes)
