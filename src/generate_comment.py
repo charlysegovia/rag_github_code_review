@@ -100,9 +100,9 @@ def main(pr_number: int) -> None:
         comment = get_feedback(filename, content)
         # Dry-run print
         print(f"Would post to https://github.com/{GIT_REPO}/pull/{pr_number} for {filename}:")
-        print(comment)
+        # print(comment)
         # To enable live comments, uncomment below
-        # post_github_comment(GIT_TOKEN, GIT_REPO, pr_number, comment, filename)
+        post_github_comment(GIT_TOKEN, GIT_REPO, pr_number, comment, filename)
 
 
 if __name__ == "__main__":
