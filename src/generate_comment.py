@@ -22,10 +22,11 @@ if OPENAI_API_KEY is None:
     raise ValueError("You need to specify OPENAI_API_KEY environment variable!")
 
 client = OpenAI(api_key=OPENAI_API_KEY)
+# top of file, after you set up your OpenAI client
+gh = Github(GIT_TOKEN)
+repo = gh.get_repo(GIT_REPO)
 
 def get_pr_files(pr_number):
-    g = Github(os.getenv('GIT_TOKEN'))
-    repo = g.get_repo(os.getenv('GITHUB_REPOSITORY'))
     pr = repo.get_pull(pr_number)
     files = pr.get_files()
     changes = [f.filename for f in files]
@@ -82,7 +83,11 @@ def main(files_to_process: list):
             prompt = f"Make sure this file {filename} with this content: {content} follows all the right naming and python conventions. Make any call outs you see!"
             comment = get_feedback(filename, system_prompt, prompt)
             if GIT_TOKEN and GIT_REPO and pr_number:
-                post_github_comment(GIT_TOKEN, GIT_REPO, pr_number, comment, filename)
+              # (dry-run) show us what we’d send
+              print(f"Would post to https://github.com/{GIT_REPO}/pull/{pr_number}:")
+              # print(comment)            
+              post_github_comment(GIT_TOKEN, GIT_REPO, pr_number, comment, filename)
+
     except Exception as e:
         print(e)
 
