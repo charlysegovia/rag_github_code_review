@@ -106,7 +106,7 @@ def main(pr_number: int) -> None:
 
 
 if __name__ == "__main__":
-    if len(sys.argv) != 2:
+    if len(sys.argv) < 2:
         print("Usage: python src/generate_comment.py <PR_NUMBER>")
         sys.exit(1)
     main(int(sys.argv[1]))
