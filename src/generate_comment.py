@@ -4,6 +4,8 @@ import requests
 import logging
 from openai import OpenAI
 from github import Github
+from settings import settings
+
 
 logger = logging.getLogger()
 formatter = logging.Formatter("%(message)s")
@@ -12,9 +14,10 @@ stream_handler.setFormatter(formatter)
 logger.addHandler(stream_handler)
 logger.setLevel(logging.INFO)
 
-GIT_TOKEN = os.environ.get('GIT_TOKEN')
-GIT_REPO = os.environ.get('GITHUB_REPOSITORY')
-OPENAI_API_KEY = os.environ.get("OPENAI_API_KEY")
+GIT_TOKEN = settings.git_token
+GIT_REPO = settings.github_repository
+OPENAI_API_KEY = settings.openai_api_key
+
 if OPENAI_API_KEY is None:
     raise ValueError("You need to specify OPENAI_API_KEY environment variable!")
 
