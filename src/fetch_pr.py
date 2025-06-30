@@ -16,8 +16,8 @@ def main(pr_number: int):
     Args:
         pr_number (int): Pull Request number to inspect.
     """
-    gh = Github(settings.git_token)
-    repo = gh.get_repo(settings.github_repository)
+    github_connection = Github(settings.git_token)
+    repo = github_connection.get_repo(settings.github_repository)
     pr = repo.get_pull(pr_number)
 
     files = pr.get_files()

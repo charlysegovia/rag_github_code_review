@@ -1,5 +1,5 @@
 openai
-PyGithub
 pydantic
 pydantic-settings
+PyGithub
 python-dotenv
