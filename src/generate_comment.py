@@ -44,8 +44,12 @@ def get_pr_files(pr_number: int) -> list[str]:
 
 def get_feedback(filename: str, content: str) -> str:
     """
-    Ask the LLM to review file content and return only corrections.
+    Ask the LLM to review file content and return only corrections in bullet form,
+    or 'No issues found.' if none.
     """
+    
+    file_path = os.path.join(os.getcwd(), filename)
+
     # Use a triple-quoted f-string to include newlines and backticks properly
     user_prompt = f"""
 Review the file `{filename}` located at `{file_path}`.
