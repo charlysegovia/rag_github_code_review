@@ -31,9 +31,9 @@ repo = gh.get_repo(GIT_REPO)
 # System prompt focuses on actionable corrections only
 SYSTEM_PROMPT = (
     "You are a senior software engineer. "
-    "Provide only concise, actionable suggestions for code improvements. "
+    "For each file, provide only concise, actionable suggestions for code improvements. "
     "Do not mention what is already correct or offer praise. "
-    "List each issue and its fix clearly."
+    "When a file has no issues, reply 'No issues found.'"
 )
 
 
@@ -48,8 +48,9 @@ def get_feedback(filename: str, content: str) -> str:
     """
     # Use a triple-quoted f-string to include newlines and backticks properly
     user_prompt = f"""
-Review the following file `{filename}` and list only the issues along with precise fixes.
-Respond in bullet form. Do not mention correct parts.
+Review the file `{filename}` located at `{file_path}`.
+List only the issues along with precise fixes in bullet form. If there are no issues,
+respond exactly with: No issues found.
 ```
 {content}
 ```
