@@ -31,8 +31,8 @@ repo = gh.get_repo(GIT_REPO)
 # System prompt: enforce Issue/Fix format per file and header once
 SYSTEM_PROMPT = (
     "You are a senior software engineer. "
-    "For each file, return a section starting with '### filename — full/path', then list issues and fixes. "
-    "Each item must use 'Issue: <description>' and 'Fix: <suggestion>'. "
+    "For each file, return a section starting with '### filename', then bullet-list issues and fixes. "
+    "Each item must use 'Issue: <description>' and 'Fix: <suggestion>' with dash '-' bullets. "
     "If there are no issues, list 'No issues found.' under the header."
 )
 
@@ -47,13 +47,13 @@ def get_feedback(filename: str, content: str) -> str:
     Ask the LLM to review file content and return items in Issue/Fix format, or
     'No issues found.' if none.
     """
-    file_path = os.path.join(os.getcwd(), filename)
+    
     user_prompt = f"""
-Review the file `{filename}` at path `{file_path}`.
+Review the file `{filename}`.
 For each problem, output:
-Issue: <brief description>
-Fix: <precise fix>
-Use bullet points for each Issue/Fix pair.
+- Issue: <brief description>
+  Fix: <precise fix>
+Use dash '-' for bullets.
 If there are no issues, output exactly:
 No issues found.
 ```
@@ -112,7 +112,7 @@ def main(pr_number: int) -> None:
         print(f"Would post to https://github.com/{GIT_REPO}/pull/{pr_number} for {filename}:")
         print(comment)
         # To enable live comments, uncomment below
-        # post_github_comment(GIT_TOKEN, GIT_REPO, pr_number, comment, filename)
+        post_github_comment(GIT_TOKEN, GIT_REPO, pr_number, comment, filename)
 
 
 if __name__ == "__main__":
