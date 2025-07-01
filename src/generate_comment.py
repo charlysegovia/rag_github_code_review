@@ -11,7 +11,7 @@ from github import Github
 from settings import settings
 
 # Configure logging
-t_logger = logging.getLogger(__name__)
+logger = logging.getLogger(__name__)
 logging.basicConfig(format="%(message)s", level=logging.INFO)
 
 # Load settings
@@ -20,7 +20,7 @@ GIT_REPO = settings.github_repository
 OPENAI_API_KEY = settings.openai_api_key
 
 if not OPENAI_API_KEY or not GIT_TOKEN:
-    t_logger.error("Missing OPENAI_API_KEY or GIT_TOKEN in environment.")
+    logger.error("Missing OPENAI_API_KEY or GIT_TOKEN in environment.")
     sys.exit(1)
 
 # Initialize clients
@@ -28,12 +28,12 @@ client = OpenAI(api_key=OPENAI_API_KEY)
 gh = Github(GIT_TOKEN)
 repo = gh.get_repo(GIT_REPO)
 
-# System prompt focuses on actionable corrections only
+# System prompt: enforce Issue/Fix format per file and header once
 SYSTEM_PROMPT = (
     "You are a senior software engineer. "
-    "For each file, provide only concise, actionable suggestions for code improvements. "
-    "Do not mention what is already correct or offer praise. "
-    "When a file has no issues, reply 'No issues found.'"
+    "For each file, return a section starting with '### filename — full/path', then list issues and fixes. "
+    "Each item must use 'Issue: <description>' and 'Fix: <suggestion>'. "
+    "If there are no issues, list 'No issues found.' under the header."
 )
 
 
@@ -44,21 +44,21 @@ def get_pr_files(pr_number: int) -> list[str]:
 
 def get_feedback(filename: str, content: str) -> str:
     """
-    Ask the LLM to review file content and return only corrections in bullet form,
-    or 'No issues found.' if none.
+    Ask the LLM to review file content and return items in Issue/Fix format, or
+    'No issues found.' if none.
     """
-    
     file_path = os.path.join(os.getcwd(), filename)
-
-    # Use a triple-quoted f-string to include newlines and backticks properly
     user_prompt = f"""
-Review the file `{filename}` located at `{file_path}`.
-List only the issues along with precise fixes in bullet form. If there are no issues,
-respond exactly with: No issues found.
+Review the file `{filename}` at path `{file_path}`.
+For each problem, output:
+Issue: <brief description>
+Fix: <precise fix>
+Use bullet points for each Issue/Fix pair.
+If there are no issues, output exactly:
+No issues found.
 ```
 {content}
-```
-"""
+```"""
     response = client.chat.completions.create(
         model="gpt-4",
         messages=[
@@ -80,38 +80,44 @@ def post_github_comment(git_token: str, repo_name: str, pr_number: int, comment:
     data = {"body": comment}
     res = requests.post(url, headers=headers, json=data)
     if res.status_code != 201:
-        t_logger.error(f"Failed to comment on {filename}: {res.status_code} {res.text}")
+        logger.error(f"Failed to comment on {filename}: {res.status_code} {res.text}")
         raise Exception("GitHub comment failed")
-    t_logger.info(f"📝 Commented on {filename}")
+    logger.info(f"📝 Commented on {filename}")
 
 
 def main(pr_number: int) -> None:
     files = get_pr_files(pr_number)
     if not files:
-        t_logger.info("No changed files to review.")
+        logger.info("No changed files to review.")
         return
 
     for filename in files:
-        # read file content
         path = os.path.join(os.getcwd(), filename)
         try:
             with open(path, 'r', encoding='utf-8') as f:
                 content = f.read()
         except FileNotFoundError:
-            t_logger.warning(f"File not found locally: {filename}, skipping.")
+            logger.warning(f"File not found locally: {filename}, skipping.")
             continue
 
-        t_logger.info(f"Reviewing {filename}...")
-        comment = get_feedback(filename, content)
+        logger.info(f"Reviewing {filename}...")
+        feedback = get_feedback(filename, content)
+        # Construct comment with header and Issue/Fix list
+        file_path = os.path.join(os.getcwd(), filename)
+        header = f"### {filename} — {file_path}"
+        # Ensure header is printed once per file
+        comment = header + "\n\n" + feedback
+
         # Dry-run print
         print(f"Would post to https://github.com/{GIT_REPO}/pull/{pr_number} for {filename}:")
-        # print(comment)
+        print(comment)
         # To enable live comments, uncomment below
-        post_github_comment(GIT_TOKEN, GIT_REPO, pr_number, comment, filename)
+        # post_github_comment(GIT_TOKEN, GIT_REPO, pr_number, comment, filename)
 
 
 if __name__ == "__main__":
     if len(sys.argv) < 2:
         print("Usage: python src/generate_comment.py <PR_NUMBER>")
         sys.exit(1)
-    main(int(sys.argv[1]))
+    pr_number = int(sys.argv[1])
+    main(pr_number)
