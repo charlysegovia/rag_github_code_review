@@ -1,4 +1,4 @@
-# Auto Feedback Example
+# RAG Github Code Review
 
 This repository provides two primary scripts to automate code review feedback on GitHub Pull Requests using GitHub’s API and OpenAI’s GPT-4 and serves as a simple example of applying Retrieval-Augmented Generation (RAG) in practice.
 
@@ -40,7 +40,7 @@ auto-feedback-example/
 1. **Clone the repo**
 
    ```bash
-   git clone https://github.com/charlysegovia/auto-feedback-example.git
+   git clone https://github.com/charlysegovia/rag_github_code_review
    cd auto-feedback-example
    ```
 
