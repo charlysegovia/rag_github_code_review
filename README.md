@@ -1,11 +1,11 @@
 # Auto Feedback Example
 
-This repository provides two primary scripts to automate code review feedback on GitHub Pull Requests using GitHub’s API and OpenAI’s GPT-4:
-
-**Note:** This project is based on the original code from https://github.com/DataExpert-io/auto-feedback-example
+This repository provides two primary scripts to automate code review feedback on GitHub Pull Requests using GitHub’s API and OpenAI’s GPT-4 and serves as a simple example of applying Retrieval-Augmented Generation (RAG) in practice.
 
 1. **fetch_pr.py** – A helper script to list changed files in a given PR.
 2. **generate_comment.py** – A bot that analyzes each changed file, generates actionable feedback via GPT-4, and (optionally) posts comments back to the PR.
+
+**Note:** This project is based on the original code from https://github.com/DataExpert-io/auto-feedback-example
 
 ---
 
